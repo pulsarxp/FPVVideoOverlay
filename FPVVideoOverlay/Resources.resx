@@ -1,0 +1,234 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="CreateVideo" xml:space="preserve">
+    <value>Create video</value>
+  </data>
+  <data name="CropBlackBars" xml:space="preserve">
+    <value>Crop black sidebars (1920×1080 → 1080×1080)</value>
+  </data>
+  <data name="MainVideo" xml:space="preserve">
+    <value>Main video:</value>
+  </data>
+  <data name="Margin" xml:space="preserve">
+    <value>Margin:</value>
+  </data>
+  <data name="Output" xml:space="preserve">
+    <value>Output:</value>
+  </data>
+  <data name="Overlay" xml:space="preserve">
+    <value>Overlay:</value>
+  </data>
+  <data name="OverlayPosition" xml:space="preserve">
+    <value>Overlay position:</value>
+  </data>
+  <data name="OverlaySize" xml:space="preserve">
+    <value>Overlay size:</value>
+  </data>
+  <data name="Speed" xml:space="preserve">
+    <value>Speed</value>
+  </data>
+  <data name="StatusFinished" xml:space="preserve">
+    <value>Status: Finished! 100%</value>
+  </data>
+  <data name="StatusPreparing" xml:space="preserve">
+    <value>Status: Preparing...</value>
+  </data>
+  <data name="StatusProcessing" xml:space="preserve">
+    <value>Status: Processing...</value>
+  </data>
+  <data name="StatusReady" xml:space="preserve">
+    <value>Status: Ready</value>
+  </data>
+  <data name="StatusStopped" xml:space="preserve">
+    <value>Status: Stopped</value>
+  </data>
+  <data name="StatusStopping" xml:space="preserve">
+    <value>Status: Stopping...</value>
+  </data>
+  <data name="StopProcessing" xml:space="preserve">
+    <value>⏹ Stop processing</value>
+  </data>
+  <data name="Remaining" xml:space="preserve">
+    <value>Remaining</value>
+  </data>
+  <data name="PositionTopLeft" xml:space="preserve">
+    <value>Top left</value>
+  </data>
+  <data name="PositionTopRight" xml:space="preserve">
+    <value>Top right</value>
+  </data>
+  <data name="PositionBottomLeft" xml:space="preserve">
+    <value>Bottom left</value>
+  </data>
+  <data name="PositionBottomRight" xml:space="preserve">
+    <value>Bottom right</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="InvalidMainVideo" xml:space="preserve">
+    <value>Select a valid main video!</value>
+  </data>
+  <data name="InvalidOverlay" xml:space="preserve">
+    <value>Select a valid overlay video!</value>
+  </data>
+  <data name="InvalidOutput" xml:space="preserve">
+    <value>Select an output location!</value>
+  </data>
+  <data name="MainVideoDialogTitle" xml:space="preserve">
+    <value>Select main video</value>
+  </data>
+  <data name="OverlayDialogTitle" xml:space="preserve">
+    <value>Select overlay video</value>
+  </data>
+  <data name="OutputDialogTitle" xml:space="preserve">
+    <value>Save output video</value>
+  </data>
+  <data name="VideoFinished" xml:space="preserve">
+    <value>The video has been created!</value>
+  </data>
+  <data name="StopConfirmTitle" xml:space="preserve">
+    <value>Stop processing</value>
+  </data>
+  <data name="StopConfirmMessage" xml:space="preserve">
+    <value>Are you sure you want to stop processing?</value>
+  </data>
+  <data name="StopError" xml:space="preserve">
+    <value>FFmpeg could not be stopped.</value>
+  </data>
+  <data name="FFmpegError" xml:space="preserve">
+    <value>FFmpeg stopped with an error.</value>
+  </data>
+  <data name="FFprobeError" xml:space="preserve">
+    <value>FFprobe stopped with an error.</value>
+  </data>
+  <data name="DurationError" xml:space="preserve">
+    <value>Could not determine the video duration.</value>
+  </data>
+</root>
