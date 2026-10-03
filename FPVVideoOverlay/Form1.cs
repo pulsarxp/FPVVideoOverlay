@@ -9,11 +9,17 @@ namespace FPVVideoOverlay
 
         private bool applicationClosing = false;
 
+        // Igaz lesz, ha a felhasználó kézzel állítja le a renderelést.
         private bool processingCancelled = false;
 
         public Form1()
         {
             InitializeComponent();
+
+            // Alapértelmezett beállítások
+            cmbOverlayPosition.SelectedIndex = 3; // Jobb alsó
+            numOverlayMargin.Value = 30;
+            numOverlaySize.Value = 500;
         }
 
         private void btnMainVideo_Click(object sender, EventArgs e)
@@ -61,6 +67,10 @@ namespace FPVVideoOverlay
 
         private async void btnStart_Click(object sender, EventArgs e)
         {
+            // ------------------------------------------------
+            // HA MÁR FUT AZ FFMPEG, A GOMB STOPKÉNT MŰKÖDIK
+            // ------------------------------------------------
+
             if (ffmpegProcess != null &&
                 !ffmpegProcess.HasExited)
             {
@@ -97,6 +107,10 @@ namespace FPVVideoOverlay
                 return;
             }
 
+            // ------------------------------------------------
+            // ELLENŐRZÉSEK
+            // ------------------------------------------------
+
             if (!File.Exists(txtMainVideo.Text))
             {
                 MessageBox.Show(
@@ -130,6 +144,10 @@ namespace FPVVideoOverlay
                 return;
             }
 
+            // ------------------------------------------------
+            // FELDOLGOZÁS INDÍTÁSA
+            // ------------------------------------------------
+
             processingCancelled = false;
 
             btnStart.Text =
@@ -147,18 +165,50 @@ namespace FPVVideoOverlay
                     await GetVideoDurationAsync(
                         txtMainVideo.Text);
 
+                // ------------------------------------------------
+                // OVERLAY MÉRET
+                // ------------------------------------------------
+
+                int overlaySize =
+                    (int)numOverlaySize.Value;
+
+                // ------------------------------------------------
+                // OVERLAY FILTER
+                // ------------------------------------------------
+
                 string overlayFilter;
 
                 if (chkCropBlackBars.Checked)
                 {
+                    // A 1920x1080 overlayből kivágjuk
+                    // a középső 1080x1080 területet,
+                    // majd a GUI-ban megadott méretre skálázzuk.
                     overlayFilter =
-                        "crop=1080:1080:420:0,scale=500:500";
+                        $"crop=1080:1080:420:0," +
+                        $"scale={overlaySize}:{overlaySize}";
                 }
                 else
                 {
+                    // Nincs crop, csak skálázás.
                     overlayFilter =
-                        "scale=500:500";
+                        $"scale={overlaySize}:{overlaySize}";
                 }
+
+                // ------------------------------------------------
+                // OVERLAY POZÍCIÓ ÉS MARGÓ
+                // ------------------------------------------------
+
+                int margin =
+                    (int)numOverlayMargin.Value;
+
+                string overlayPosition =
+                    GetOverlayPosition(
+                        cmbOverlayPosition.SelectedIndex,
+                        margin);
+
+                // ------------------------------------------------
+                // FFMPEG ARGUMENTUMOK
+                // ------------------------------------------------
 
                 string arguments =
                     "-y " +
@@ -168,7 +218,7 @@ namespace FPVVideoOverlay
 
                     "-filter_complex " +
                     $"\"[1:v]{overlayFilter}[map];" +
-                    $"[0:v][map]overlay=W-w-30:H-h-30\" " +
+                    $"[0:v][map]overlay={overlayPosition}\" " +
 
                     "-c:v libx264 " +
                     "-crf 18 " +
@@ -193,6 +243,10 @@ namespace FPVVideoOverlay
                         RedirectStandardError = true
                     };
 
+                // ------------------------------------------------
+                // FFMPEG INDÍTÁSA
+                // ------------------------------------------------
+
                 ffmpegProcess =
                     new Process();
 
@@ -210,6 +264,10 @@ namespace FPVVideoOverlay
                 double renderSpeed = 0;
                 double currentSeconds = 0;
 
+                // ------------------------------------------------
+                // PROGRESS OLVASÁSA
+                // ------------------------------------------------
+
                 while (true)
                 {
                     string? line =
@@ -220,6 +278,7 @@ namespace FPVVideoOverlay
                         break;
                     }
 
+                    // Feldolgozott videóidő
                     if (line.StartsWith("out_time_us="))
                     {
                         string value =
@@ -236,6 +295,7 @@ namespace FPVVideoOverlay
                         }
                     }
 
+                    // Render sebesség
                     if (line.StartsWith("speed="))
                     {
                         string value =
@@ -253,6 +313,10 @@ namespace FPVVideoOverlay
                             renderSpeed = speed;
                         }
                     }
+
+                    // ------------------------------------------------
+                    // PROGRESS + ETA
+                    // ------------------------------------------------
 
                     if (currentSeconds > 0)
                     {
@@ -316,6 +380,10 @@ namespace FPVVideoOverlay
                     }
                 }
 
+                // ------------------------------------------------
+                // FFMPEG BEFEJEZŐDÉS
+                // ------------------------------------------------
+
                 await ffmpegProcess.WaitForExitAsync();
 
                 string ffmpegOutput =
@@ -369,6 +437,10 @@ namespace FPVVideoOverlay
             }
             finally
             {
+                // ------------------------------------------------
+                // UI VISSZAÁLLÍTÁSA
+                // ------------------------------------------------
+
                 btnStart.Text =
                     "Videó készítése";
 
@@ -379,6 +451,37 @@ namespace FPVVideoOverlay
                 ffmpegProcess = null;
             }
         }
+
+        // ------------------------------------------------
+        // OVERLAY POZÍCIÓ KISZÁMÍTÁSA
+        // ------------------------------------------------
+
+        private string GetOverlayPosition(
+            int selectedIndex,
+            int margin)
+        {
+            return selectedIndex switch
+            {
+                // Bal felső
+                0 => $"{margin}:{margin}",
+
+                // Jobb felső
+                1 => $"W-w-{margin}:{margin}",
+
+                // Bal alsó
+                2 => $"{margin}:H-h-{margin}",
+
+                // Jobb alsó
+                3 => $"W-w-{margin}:H-h-{margin}",
+
+                // Biztonsági alapértelmezés
+                _ => $"W-w-{margin}:H-h-{margin}"
+            };
+        }
+
+        // ------------------------------------------------
+        // VIDEÓ HOSSZÁNAK LEKÉRÉSE FFPROBE-BAL
+        // ------------------------------------------------
 
         private async Task<double> GetVideoDurationAsync(
             string videoPath)
@@ -439,6 +542,10 @@ namespace FPVVideoOverlay
                 "Nem sikerült meghatározni a videó hosszát.");
         }
 
+        // ------------------------------------------------
+        // PROGRAM BEZÁRÁSA
+        // ------------------------------------------------
+
         private void Form1_FormClosing(
             object sender,
             FormClosingEventArgs e)
@@ -455,8 +562,7 @@ namespace FPVVideoOverlay
                 }
                 catch
                 {
-                    // Bezárás közben már nincs értelme
-                    // külön hibát megjeleníteni.
+                    // Bezárás közben nem jelenítünk meg új hibát.
                 }
             }
         }

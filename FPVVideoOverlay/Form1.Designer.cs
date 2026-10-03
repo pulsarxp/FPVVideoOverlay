@@ -2,6 +2,9 @@
 {
     partial class Form1
     {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         protected override void Dispose(bool disposing)
@@ -32,9 +35,26 @@
 
             chkCropBlackBars = new CheckBox();
 
+            lblOverlayPosition = new Label();
+            cmbOverlayPosition = new ComboBox();
+
+            lblOverlayMargin = new Label();
+            numOverlayMargin = new NumericUpDown();
+            lblMarginPx = new Label();
+
+            lblOverlaySize = new Label();
+            numOverlaySize = new NumericUpDown();
+            lblOverlaySizePx = new Label();
+
             btnStart = new Button();
             lblStatus = new Label();
             progressBar = new TextProgressBar();
+
+            ((System.ComponentModel.ISupportInitialize)numOverlayMargin)
+                .BeginInit();
+
+            ((System.ComponentModel.ISupportInitialize)numOverlaySize)
+                .BeginInit();
 
             SuspendLayout();
 
@@ -97,13 +117,25 @@
             btnOverlay.Click += btnOverlay_Click;
 
             // 
+            // chkCropBlackBars
+            // 
+            chkCropBlackBars.AutoSize = true;
+            chkCropBlackBars.Location = new Point(595, 78);
+            chkCropBlackBars.Name = "chkCropBlackBars";
+            chkCropBlackBars.Size = new Size(306, 19);
+            chkCropBlackBars.TabIndex = 6;
+            chkCropBlackBars.Text =
+                "Fekete oldalsávok levágása (1920×1080 → 1080×1080)";
+            chkCropBlackBars.UseVisualStyleBackColor = true;
+
+            // 
             // lblOutput
             // 
             lblOutput.AutoSize = true;
             lblOutput.Location = new Point(12, 130);
             lblOutput.Name = "lblOutput";
             lblOutput.Size = new Size(54, 15);
-            lblOutput.TabIndex = 6;
+            lblOutput.TabIndex = 7;
             lblOutput.Text = "Kimenet:";
 
             // 
@@ -112,7 +144,7 @@
             txtOutput.Location = new Point(83, 122);
             txtOutput.Name = "txtOutput";
             txtOutput.Size = new Size(367, 23);
-            txtOutput.TabIndex = 7;
+            txtOutput.TabIndex = 8;
 
             // 
             // btnOutput
@@ -120,64 +152,256 @@
             btnOutput.Location = new Point(496, 122);
             btnOutput.Name = "btnOutput";
             btnOutput.Size = new Size(75, 23);
-            btnOutput.TabIndex = 8;
+            btnOutput.TabIndex = 9;
             btnOutput.Text = "Tallózás...";
             btnOutput.UseVisualStyleBackColor = true;
             btnOutput.Click += btnOutput_Click;
 
             // 
-            // chkCropBlackBars
+            // lblOverlayPosition
             // 
-            chkCropBlackBars.AutoSize = true;
-            chkCropBlackBars.Location = new Point(595, 78);
-            chkCropBlackBars.Name = "chkCropBlackBars";
-            chkCropBlackBars.Size = new Size(306, 19);
-            chkCropBlackBars.TabIndex = 9;
-            chkCropBlackBars.Text =
-                "Fekete oldalsávok levágása (1920×1080 → 1080×1080)";
-            chkCropBlackBars.UseVisualStyleBackColor = true;
+            lblOverlayPosition.AutoSize = true;
+            lblOverlayPosition.Location = new Point(12, 186);
+            lblOverlayPosition.Name = "lblOverlayPosition";
+            lblOverlayPosition.Size = new Size(94, 15);
+            lblOverlayPosition.TabIndex = 10;
+            lblOverlayPosition.Text = "Overlay pozíció:";
+
+            // 
+            // cmbOverlayPosition
+            // 
+            cmbOverlayPosition.DropDownStyle =
+                ComboBoxStyle.DropDownList;
+
+            cmbOverlayPosition.FormattingEnabled = true;
+
+            cmbOverlayPosition.Items.AddRange(
+                new object[]
+                {
+                    "Bal felső",
+                    "Jobb felső",
+                    "Bal alsó",
+                    "Jobb alsó"
+                });
+
+            cmbOverlayPosition.Location =
+                new Point(112, 182);
+
+            cmbOverlayPosition.Name =
+                "cmbOverlayPosition";
+
+            cmbOverlayPosition.Size =
+                new Size(150, 23);
+
+            cmbOverlayPosition.TabIndex = 11;
+
+            // 
+            // lblOverlayMargin
+            // 
+            lblOverlayMargin.AutoSize = true;
+            lblOverlayMargin.Location =
+                new Point(304, 186);
+
+            lblOverlayMargin.Name =
+                "lblOverlayMargin";
+
+            lblOverlayMargin.Size =
+                new Size(47, 15);
+
+            lblOverlayMargin.TabIndex = 12;
+            lblOverlayMargin.Text = "Margó:";
+
+            // 
+            // numOverlayMargin
+            // 
+            numOverlayMargin.Location =
+                new Point(357, 182);
+
+            numOverlayMargin.Maximum =
+                new decimal(
+                    new int[] { 500, 0, 0, 0 });
+
+            numOverlayMargin.Name =
+                "numOverlayMargin";
+
+            numOverlayMargin.Size =
+                new Size(70, 23);
+
+            numOverlayMargin.TabIndex = 13;
+
+            numOverlayMargin.TextAlign =
+                HorizontalAlignment.Right;
+
+            numOverlayMargin.Value =
+                new decimal(
+                    new int[] { 30, 0, 0, 0 });
+
+            // 
+            // lblMarginPx
+            // 
+            lblMarginPx.AutoSize = true;
+            lblMarginPx.Location =
+                new Point(433, 186);
+
+            lblMarginPx.Name =
+                "lblMarginPx";
+
+            lblMarginPx.Size =
+                new Size(18, 15);
+
+            lblMarginPx.TabIndex = 14;
+            lblMarginPx.Text = "px";
+
+            // 
+            // lblOverlaySize
+            // 
+            lblOverlaySize.AutoSize = true;
+            lblOverlaySize.Location =
+                new Point(500, 186);
+
+            lblOverlaySize.Name =
+                "lblOverlaySize";
+
+            lblOverlaySize.Size =
+                new Size(86, 15);
+
+            lblOverlaySize.TabIndex = 15;
+            lblOverlaySize.Text =
+                "Overlay mérete:";
+
+            // 
+            // numOverlaySize
+            // 
+            numOverlaySize.Increment =
+                new decimal(
+                    new int[] { 10, 0, 0, 0 });
+
+            numOverlaySize.Location =
+                new Point(592, 182);
+
+            numOverlaySize.Maximum =
+                new decimal(
+                    new int[] { 2000, 0, 0, 0 });
+
+            numOverlaySize.Minimum =
+                new decimal(
+                    new int[] { 50, 0, 0, 0 });
+
+            numOverlaySize.Name =
+                "numOverlaySize";
+
+            numOverlaySize.Size =
+                new Size(80, 23);
+
+            numOverlaySize.TabIndex = 16;
+
+            numOverlaySize.TextAlign =
+                HorizontalAlignment.Right;
+
+            numOverlaySize.Value =
+                new decimal(
+                    new int[] { 500, 0, 0, 0 });
+
+            // 
+            // lblOverlaySizePx
+            // 
+            lblOverlaySizePx.AutoSize = true;
+            lblOverlaySizePx.Location =
+                new Point(678, 186);
+
+            lblOverlaySizePx.Name =
+                "lblOverlaySizePx";
+
+            lblOverlaySizePx.Size =
+                new Size(18, 15);
+
+            lblOverlaySizePx.TabIndex = 17;
+            lblOverlaySizePx.Text = "px";
 
             // 
             // btnStart
             // 
-            btnStart.Location = new Point(12, 281);
-            btnStart.Name = "btnStart";
-            btnStart.Size = new Size(199, 72);
-            btnStart.TabIndex = 10;
-            btnStart.Text = "Videó készítése";
-            btnStart.UseVisualStyleBackColor = true;
-            btnStart.Click += btnStart_Click;
+            btnStart.Location =
+                new Point(12, 281);
+
+            btnStart.Name =
+                "btnStart";
+
+            btnStart.Size =
+                new Size(199, 72);
+
+            btnStart.TabIndex = 18;
+
+            btnStart.Text =
+                "Videó készítése";
+
+            btnStart.UseVisualStyleBackColor =
+                true;
+
+            btnStart.Click +=
+                btnStart_Click;
 
             // 
             // lblStatus
             // 
             lblStatus.AutoSize = true;
-            lblStatus.Location = new Point(267, 310);
-            lblStatus.Name = "lblStatus";
-            lblStatus.Size = new Size(87, 15);
-            lblStatus.TabIndex = 11;
-            lblStatus.Text = "Állapot: Készen";
+
+            lblStatus.Location =
+                new Point(267, 310);
+
+            lblStatus.Name =
+                "lblStatus";
+
+            lblStatus.Size =
+                new Size(87, 15);
+
+            lblStatus.TabIndex = 19;
+
+            lblStatus.Text =
+                "Állapot: Készen";
 
             // 
             // progressBar
             // 
-            progressBar.Location = new Point(51, 397);
-            progressBar.Name = "progressBar";
-            progressBar.Size = new Size(862, 23);
-            progressBar.TabIndex = 12;
+            progressBar.Location =
+                new Point(51, 397);
+
+            progressBar.Name =
+                "progressBar";
+
+            progressBar.Size =
+                new Size(862, 23);
+
+            progressBar.TabIndex = 20;
 
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
+            AutoScaleDimensions =
+                new SizeF(7F, 15F);
 
-            ClientSize = new Size(959, 450);
+            AutoScaleMode =
+                AutoScaleMode.Font;
+
+            ClientSize =
+                new Size(959, 450);
 
             Controls.Add(progressBar);
-            Controls.Add(chkCropBlackBars);
             Controls.Add(lblStatus);
             Controls.Add(btnStart);
+
+            Controls.Add(lblOverlaySizePx);
+            Controls.Add(numOverlaySize);
+            Controls.Add(lblOverlaySize);
+
+            Controls.Add(lblMarginPx);
+            Controls.Add(numOverlayMargin);
+            Controls.Add(lblOverlayMargin);
+
+            Controls.Add(cmbOverlayPosition);
+            Controls.Add(lblOverlayPosition);
+
+            Controls.Add(chkCropBlackBars);
 
             Controls.Add(btnOutput);
             Controls.Add(txtOutput);
@@ -194,7 +418,14 @@
             Name = "Form1";
             Text = "FPV Video Overlay";
 
-            FormClosing += Form1_FormClosing;
+            FormClosing +=
+                Form1_FormClosing;
+
+            ((System.ComponentModel.ISupportInitialize)numOverlayMargin)
+                .EndInit();
+
+            ((System.ComponentModel.ISupportInitialize)numOverlaySize)
+                .EndInit();
 
             ResumeLayout(false);
             PerformLayout();
@@ -215,6 +446,17 @@
         private Button btnOutput;
 
         private CheckBox chkCropBlackBars;
+
+        private Label lblOverlayPosition;
+        private ComboBox cmbOverlayPosition;
+
+        private Label lblOverlayMargin;
+        private NumericUpDown numOverlayMargin;
+        private Label lblMarginPx;
+
+        private Label lblOverlaySize;
+        private NumericUpDown numOverlaySize;
+        private Label lblOverlaySizePx;
 
         private Button btnStart;
         private Label lblStatus;
