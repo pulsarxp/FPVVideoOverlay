@@ -40,6 +40,7 @@
             btnStart = new Button();
             lblStatus = new Label();
             chkCropBlackBars = new CheckBox();
+            progressBar = new ProgressBar();
             SuspendLayout();
             // 
             // lblMainVideo
@@ -152,11 +153,19 @@
             chkCropBlackBars.Text = "Fekete oldalsávok levágása (1920×1080 → 1080×1080)";
             chkCropBlackBars.UseVisualStyleBackColor = true;
             // 
+            // progressBar
+            // 
+            progressBar.Location = new Point(51, 397);
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(862, 23);
+            progressBar.TabIndex = 12;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(959, 450);
+            Controls.Add(progressBar);
             Controls.Add(chkCropBlackBars);
             Controls.Add(lblStatus);
             Controls.Add(btnStart);
@@ -189,5 +198,6 @@
         private Button btnStart;
         private Label lblStatus;
         private CheckBox chkCropBlackBars;
+        private ProgressBar progressBar;
     }
 }
