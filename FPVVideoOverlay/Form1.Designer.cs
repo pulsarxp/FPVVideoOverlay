@@ -39,6 +39,7 @@
             lblOutput = new Label();
             btnStart = new Button();
             lblStatus = new Label();
+            chkCropBlackBars = new CheckBox();
             SuspendLayout();
             // 
             // lblMainVideo
@@ -130,6 +131,7 @@
             btnStart.TabIndex = 9;
             btnStart.Text = "Videó készítése";
             btnStart.UseVisualStyleBackColor = true;
+            btnStart.Click += btnStart_Click;
             // 
             // lblStatus
             // 
@@ -140,11 +142,22 @@
             lblStatus.TabIndex = 10;
             lblStatus.Text = "Állapot: Készen";
             // 
+            // chkCropBlackBars
+            // 
+            chkCropBlackBars.AutoSize = true;
+            chkCropBlackBars.Location = new Point(595, 78);
+            chkCropBlackBars.Name = "chkCropBlackBars";
+            chkCropBlackBars.Size = new Size(306, 19);
+            chkCropBlackBars.TabIndex = 11;
+            chkCropBlackBars.Text = "Fekete oldalsávok levágása (1920×1080 → 1080×1080)";
+            chkCropBlackBars.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(959, 450);
+            Controls.Add(chkCropBlackBars);
             Controls.Add(lblStatus);
             Controls.Add(btnStart);
             Controls.Add(btnOutput);
@@ -175,5 +188,6 @@
         private Label lblOutput;
         private Button btnStart;
         private Label lblStatus;
+        private CheckBox chkCropBlackBars;
     }
 }
