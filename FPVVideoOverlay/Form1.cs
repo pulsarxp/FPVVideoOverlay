@@ -8,76 +8,273 @@ namespace FPVVideoOverlay
         private Process? ffmpegProcess;
 
         private bool applicationClosing = false;
-
-        // Igaz lesz, ha a felhasználó kézzel állítja le a renderelést.
         private bool processingCancelled = false;
+
+        // Megakadályozza, hogy a nyelvi ComboBox feltöltése
+        // közben lefusson a nyelvváltás.
+        private bool languageComboLoading = false;
 
         public Form1()
         {
             InitializeComponent();
 
-            // Alapértelmezett beállítások
-            cmbOverlayPosition.SelectedIndex = 3; // Jobb alsó
+            // Alapértelmezett overlay beállítások
             numOverlayMargin.Value = 30;
             numOverlaySize.Value = 500;
+
+            // Windows nyelvének vizsgálata.
+            // A SetLanguage -> ApplyLanguage tölti fel
+            // az overlay pozíció ComboBox elemeit.
+            if (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "hu")
+            {
+                SetLanguage("hu");
+            }
+            else
+            {
+                SetLanguage("en");
+            }
+
+            // A ComboBox ekkor már fel van töltve.
+            cmbOverlayPosition.SelectedIndex = 3;
         }
 
-        private void btnMainVideo_Click(object sender, EventArgs e)
-        {
-            using OpenFileDialog openFileDialog = new OpenFileDialog();
+        // ------------------------------------------------
+        // LOKALIZÁCIÓ
+        // ------------------------------------------------
 
-            openFileDialog.Title = "Fő videó kiválasztása";
+        private void SetLanguage(string languageCode)
+        {
+            if (languageCode == "hu")
+            {
+                CultureInfo.CurrentUICulture =
+                    new CultureInfo("hu-HU");
+            }
+            else
+            {
+                CultureInfo.CurrentUICulture =
+                    new CultureInfo("en-US");
+            }
+
+            ApplyLanguage();
+
+            languageComboLoading = true;
+
+            cmbLanguage.Items.Clear();
+            cmbLanguage.Items.Add("Magyar");
+            cmbLanguage.Items.Add("English");
+
+            if (languageCode == "hu")
+            {
+                cmbLanguage.SelectedIndex = 0;
+            }
+            else
+            {
+                cmbLanguage.SelectedIndex = 1;
+            }
+
+            languageComboLoading = false;
+        }
+
+        private void ApplyLanguage()
+        {
+            // Ablak
+            Text = "FPV Video Overlay";
+
+            // Fájlok
+            lblMainVideo.Text =
+                Resources.MainVideo;
+
+            lblOverlay.Text =
+                Resources.Overlay;
+
+            lblOutput.Text =
+                Resources.Output;
+
+            btnMainVideo.Text =
+                Resources.Browse;
+
+            btnOverlay.Text =
+                Resources.Browse;
+
+            btnOutput.Text =
+                Resources.Browse;
+
+            // Overlay beállítások
+            chkCropBlackBars.Text =
+                Resources.CropBlackBars;
+
+            lblOverlayPosition.Text =
+                Resources.OverlayPosition;
+
+            lblOverlayMargin.Text =
+                Resources.Margin;
+
+            lblOverlaySize.Text =
+                Resources.OverlaySize;
+
+            // Nyelv
+            lblLanguage.Text =
+                Resources.Language;
+
+            // Pozíciók újratöltése úgy,
+            // hogy a kiválasztás megmaradjon.
+            int selectedPosition =
+                cmbOverlayPosition.SelectedIndex;
+
+            if (selectedPosition < 0)
+            {
+                selectedPosition = 3;
+            }
+
+            cmbOverlayPosition.Items.Clear();
+
+            cmbOverlayPosition.Items.Add(
+                Resources.PositionTopLeft);
+
+            cmbOverlayPosition.Items.Add(
+                Resources.PositionTopRight);
+
+            cmbOverlayPosition.Items.Add(
+                Resources.PositionBottomLeft);
+
+            cmbOverlayPosition.Items.Add(
+                Resources.PositionBottomRight);
+
+            cmbOverlayPosition.SelectedIndex =
+                selectedPosition;
+
+            // Start/Stop gomb
+            if (ffmpegProcess != null &&
+                !ffmpegProcess.HasExited)
+            {
+                btnStart.Text =
+                    Resources.StopProcessing;
+            }
+            else
+            {
+                btnStart.Text =
+                    Resources.CreateVideo;
+            }
+
+            // Ha éppen nem fut render,
+            // az alap státuszt is lokalizáljuk.
+            if (ffmpegProcess == null ||
+                ffmpegProcess.HasExited)
+            {
+                lblStatus.Text =
+                    Resources.StatusReady;
+            }
+        }
+
+        private void cmbLanguage_SelectedIndexChanged(
+            object sender,
+            EventArgs e)
+        {
+            if (languageComboLoading)
+            {
+                return;
+            }
+
+            if (cmbLanguage.SelectedIndex == 0)
+            {
+                SetLanguage("hu");
+            }
+            else if (cmbLanguage.SelectedIndex == 1)
+            {
+                SetLanguage("en");
+            }
+        }
+
+        // ------------------------------------------------
+        // FÁJLVÁLASZTÁS
+        // ------------------------------------------------
+
+        private void btnMainVideo_Click(
+            object sender,
+            EventArgs e)
+        {
+            using OpenFileDialog openFileDialog =
+                new OpenFileDialog();
+
+            openFileDialog.Title =
+                Resources.MainVideoDialogTitle;
+
             openFileDialog.Filter =
-                "Videófájlok|*.mp4;*.mov;*.mkv;*.avi|Minden fájl|*.*";
+                "Video files|*.mp4;*.mov;*.mkv;*.avi|All files|*.*";
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() ==
+                DialogResult.OK)
             {
-                txtMainVideo.Text = openFileDialog.FileName;
+                txtMainVideo.Text =
+                    openFileDialog.FileName;
             }
         }
 
-        private void btnOverlay_Click(object sender, EventArgs e)
+        private void btnOverlay_Click(
+            object sender,
+            EventArgs e)
         {
-            using OpenFileDialog openFileDialog = new OpenFileDialog();
+            using OpenFileDialog openFileDialog =
+                new OpenFileDialog();
 
-            openFileDialog.Title = "Overlay videó kiválasztása";
+            openFileDialog.Title =
+                Resources.OverlayDialogTitle;
+
             openFileDialog.Filter =
-                "Videófájlok|*.mp4;*.mov;*.mkv;*.avi|Minden fájl|*.*";
+                "Video files|*.mp4;*.mov;*.mkv;*.avi|All files|*.*";
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() ==
+                DialogResult.OK)
             {
-                txtOverlay.Text = openFileDialog.FileName;
+                txtOverlay.Text =
+                    openFileDialog.FileName;
             }
         }
 
-        private void btnOutput_Click(object sender, EventArgs e)
+        private void btnOutput_Click(
+            object sender,
+            EventArgs e)
         {
-            using SaveFileDialog saveFileDialog = new SaveFileDialog();
+            using SaveFileDialog saveFileDialog =
+                new SaveFileDialog();
 
-            saveFileDialog.Title = "Kimeneti videó mentése";
-            saveFileDialog.Filter = "MP4 videó|*.mp4";
-            saveFileDialog.DefaultExt = "mp4";
-            saveFileDialog.FileName = "output.mp4";
+            saveFileDialog.Title =
+                Resources.OutputDialogTitle;
 
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            saveFileDialog.Filter =
+                "MP4 video|*.mp4";
+
+            saveFileDialog.DefaultExt =
+                "mp4";
+
+            saveFileDialog.FileName =
+                "output.mp4";
+
+            if (saveFileDialog.ShowDialog() ==
+                DialogResult.OK)
             {
-                txtOutput.Text = saveFileDialog.FileName;
+                txtOutput.Text =
+                    saveFileDialog.FileName;
             }
         }
 
-        private async void btnStart_Click(object sender, EventArgs e)
-        {
-            // ------------------------------------------------
-            // HA MÁR FUT AZ FFMPEG, A GOMB STOPKÉNT MŰKÖDIK
-            // ------------------------------------------------
+        // ------------------------------------------------
+        // START / STOP
+        // ------------------------------------------------
 
+        private async void btnStart_Click(
+            object sender,
+            EventArgs e)
+        {
+            // Ha már fut az FFmpeg,
+            // ugyanaz a gomb STOP-ként működik.
             if (ffmpegProcess != null &&
                 !ffmpegProcess.HasExited)
             {
                 DialogResult result =
                     MessageBox.Show(
-                        "Biztosan le szeretnéd állítani a feldolgozást?",
-                        "Feldolgozás leállítása",
+                        Resources.StopConfirmMessage,
+                        Resources.StopConfirmTitle,
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question);
 
@@ -91,14 +288,15 @@ namespace FPVVideoOverlay
                             entireProcessTree: true);
 
                         lblStatus.Text =
-                            "Állapot: Leállítás...";
+                            Resources.StatusStopping;
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show(
-                            "Nem sikerült leállítani az FFmpeg-et.\n\n" +
+                            Resources.StopError +
+                            "\n\n" +
                             ex.Message,
-                            "Hiba",
+                            Resources.Error,
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
                     }
@@ -114,8 +312,8 @@ namespace FPVVideoOverlay
             if (!File.Exists(txtMainVideo.Text))
             {
                 MessageBox.Show(
-                    "Válassz ki egy érvényes fő videót!",
-                    "Hiba",
+                    Resources.InvalidMainVideo,
+                    Resources.Error,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
 
@@ -125,19 +323,20 @@ namespace FPVVideoOverlay
             if (!File.Exists(txtOverlay.Text))
             {
                 MessageBox.Show(
-                    "Válassz ki egy érvényes overlay videót!",
-                    "Hiba",
+                    Resources.InvalidOverlay,
+                    Resources.Error,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
 
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(txtOutput.Text))
+            if (string.IsNullOrWhiteSpace(
+                txtOutput.Text))
             {
                 MessageBox.Show(
-                    "Add meg a kimeneti videó helyét!",
-                    "Hiba",
+                    Resources.InvalidOutput,
+                    Resources.Error,
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
 
@@ -151,16 +350,15 @@ namespace FPVVideoOverlay
             processingCancelled = false;
 
             btnStart.Text =
-                "⏹ Feldolgozás leállítása";
+                Resources.StopProcessing;
 
             progressBar.Value = 0;
 
             lblStatus.Text =
-                "Állapot: Előkészítés...";
+                Resources.StatusPreparing;
 
             try
             {
-                // Fő videó hosszának lekérése FFprobe-bal.
                 double duration =
                     await GetVideoDurationAsync(
                         txtMainVideo.Text);
@@ -180,22 +378,18 @@ namespace FPVVideoOverlay
 
                 if (chkCropBlackBars.Checked)
                 {
-                    // A 1920x1080 overlayből kivágjuk
-                    // a középső 1080x1080 területet,
-                    // majd a GUI-ban megadott méretre skálázzuk.
                     overlayFilter =
                         $"crop=1080:1080:420:0," +
                         $"scale={overlaySize}:{overlaySize}";
                 }
                 else
                 {
-                    // Nincs crop, csak skálázás.
                     overlayFilter =
                         $"scale={overlaySize}:{overlaySize}";
                 }
 
                 // ------------------------------------------------
-                // OVERLAY POZÍCIÓ ÉS MARGÓ
+                // POZÍCIÓ + MARGÓ
                 // ------------------------------------------------
 
                 int margin =
@@ -256,29 +450,30 @@ namespace FPVVideoOverlay
                 ffmpegProcess.Start();
 
                 lblStatus.Text =
-                    "Állapot: Feldolgozás... 0%";
+                    $"{Resources.StatusProcessing} 0%";
 
                 Task<string> errorTask =
-                    ffmpegProcess.StandardError.ReadToEndAsync();
+                    ffmpegProcess.StandardError
+                        .ReadToEndAsync();
 
                 double renderSpeed = 0;
                 double currentSeconds = 0;
 
                 // ------------------------------------------------
-                // PROGRESS OLVASÁSA
+                // PROGRESS
                 // ------------------------------------------------
 
                 while (true)
                 {
                     string? line =
-                        await ffmpegProcess.StandardOutput.ReadLineAsync();
+                        await ffmpegProcess.StandardOutput
+                            .ReadLineAsync();
 
                     if (line == null)
                     {
                         break;
                     }
 
-                    // Feldolgozott videóidő
                     if (line.StartsWith("out_time_us="))
                     {
                         string value =
@@ -295,7 +490,6 @@ namespace FPVVideoOverlay
                         }
                     }
 
-                    // Render sebesség
                     if (line.StartsWith("speed="))
                     {
                         string value =
@@ -315,7 +509,7 @@ namespace FPVVideoOverlay
                     }
 
                     // ------------------------------------------------
-                    // PROGRESS + ETA
+                    // SZÁZALÉK + ETA
                     // ------------------------------------------------
 
                     if (currentSeconds > 0)
@@ -374,14 +568,17 @@ namespace FPVVideoOverlay
                                 : "--";
 
                         lblStatus.Text =
-                            $"Állapot: Feldolgozás... {percent}% | " +
-                            $"Sebesség: {speedText} | " +
-                            $"Hátra: ~{etaText}";
+                            $"{Resources.StatusProcessing} " +
+                            $"{percent}% | " +
+                            $"{Resources.Speed}: " +
+                            $"{speedText} | " +
+                            $"{Resources.Remaining}: " +
+                            $"~{etaText}";
                     }
                 }
 
                 // ------------------------------------------------
-                // FFMPEG BEFEJEZŐDÉS
+                // FFMPEG VÉGE
                 // ------------------------------------------------
 
                 await ffmpegProcess.WaitForExitAsync();
@@ -394,28 +591,29 @@ namespace FPVVideoOverlay
                     progressBar.Value = 100;
 
                     lblStatus.Text =
-                        "Állapot: Kész! 100%";
+                        Resources.StatusFinished;
 
                     MessageBox.Show(
-                        "A videó elkészült!",
-                        "Kész",
+                        Resources.VideoFinished,
+                        Resources.Done,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
                 }
                 else if (processingCancelled)
                 {
                     lblStatus.Text =
-                        "Állapot: Leállítva";
+                        Resources.StatusStopped;
                 }
                 else if (!applicationClosing)
                 {
                     lblStatus.Text =
-                        "Állapot: Hiba!";
+                        Resources.Error;
 
                     MessageBox.Show(
-                        "Az FFmpeg hibával állt le.\n\n" +
+                        Resources.FFmpegError +
+                        "\n\n" +
                         ffmpegOutput,
-                        "FFmpeg hiba",
+                        Resources.Error,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                 }
@@ -426,23 +624,19 @@ namespace FPVVideoOverlay
                     !processingCancelled)
                 {
                     lblStatus.Text =
-                        "Állapot: Hiba!";
+                        Resources.Error;
 
                     MessageBox.Show(
                         ex.Message,
-                        "Hiba",
+                        Resources.Error,
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                 }
             }
             finally
             {
-                // ------------------------------------------------
-                // UI VISSZAÁLLÍTÁSA
-                // ------------------------------------------------
-
                 btnStart.Text =
-                    "Videó készítése";
+                    Resources.CreateVideo;
 
                 btnStart.Enabled =
                     true;
@@ -453,7 +647,7 @@ namespace FPVVideoOverlay
         }
 
         // ------------------------------------------------
-        // OVERLAY POZÍCIÓ KISZÁMÍTÁSA
+        // OVERLAY POZÍCIÓ
         // ------------------------------------------------
 
         private string GetOverlayPosition(
@@ -462,25 +656,20 @@ namespace FPVVideoOverlay
         {
             return selectedIndex switch
             {
-                // Bal felső
                 0 => $"{margin}:{margin}",
 
-                // Jobb felső
                 1 => $"W-w-{margin}:{margin}",
 
-                // Bal alsó
                 2 => $"{margin}:H-h-{margin}",
 
-                // Jobb alsó
                 3 => $"W-w-{margin}:H-h-{margin}",
 
-                // Biztonsági alapértelmezés
                 _ => $"W-w-{margin}:H-h-{margin}"
             };
         }
 
         // ------------------------------------------------
-        // VIDEÓ HOSSZÁNAK LEKÉRÉSE FFPROBE-BAL
+        // VIDEÓ HOSSZA
         // ------------------------------------------------
 
         private async Task<double> GetVideoDurationAsync(
@@ -525,7 +714,8 @@ namespace FPVVideoOverlay
             if (probeProcess.ExitCode != 0)
             {
                 throw new Exception(
-                    "Az FFprobe hibával állt le:\n\n" +
+                    Resources.FFprobeError +
+                    "\n\n" +
                     error);
             }
 
@@ -539,7 +729,7 @@ namespace FPVVideoOverlay
             }
 
             throw new Exception(
-                "Nem sikerült meghatározni a videó hosszát.");
+                Resources.DurationError);
         }
 
         // ------------------------------------------------
@@ -562,7 +752,6 @@ namespace FPVVideoOverlay
                 }
                 catch
                 {
-                    // Bezárás közben nem jelenítünk meg új hibát.
                 }
             }
         }
