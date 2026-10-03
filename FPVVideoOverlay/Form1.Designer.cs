@@ -2,18 +2,8 @@
 {
     partial class Form1
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">
-        /// true if managed resources should be disposed;
-        /// otherwise, false.
-        /// </param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -26,10 +16,6 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             lblMainVideo = new Label();
@@ -48,7 +34,7 @@
 
             btnStart = new Button();
             lblStatus = new Label();
-            progressBar = new ProgressBar();
+            progressBar = new TextProgressBar();
 
             SuspendLayout();
 
@@ -61,7 +47,6 @@
             lblMainVideo.Size = new Size(55, 15);
             lblMainVideo.TabIndex = 0;
             lblMainVideo.Text = "Fő videó:";
-            lblMainVideo.TextAlign = ContentAlignment.TopCenter;
 
             // 
             // txtMainVideo
@@ -91,7 +76,6 @@
             lblOverlay.Size = new Size(50, 15);
             lblOverlay.TabIndex = 3;
             lblOverlay.Text = "Overlay:";
-            lblOverlay.TextAlign = ContentAlignment.TopCenter;
 
             // 
             // txtOverlay
@@ -121,7 +105,6 @@
             lblOutput.Size = new Size(54, 15);
             lblOutput.TabIndex = 6;
             lblOutput.Text = "Kimenet:";
-            lblOutput.TextAlign = ContentAlignment.TopCenter;
 
             // 
             // txtOutput
@@ -235,6 +218,6 @@
 
         private Button btnStart;
         private Label lblStatus;
-        private ProgressBar progressBar;
+        private TextProgressBar progressBar;
     }
 }
