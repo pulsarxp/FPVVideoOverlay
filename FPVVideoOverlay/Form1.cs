@@ -1,11 +1,19 @@
 using System.Diagnostics;
 using System.Globalization;
 
-
 namespace FPVVideoOverlay
 {
     public partial class Form1 : Form
     {
+        // Az éppen futó FFmpeg process.
+        // Azért tároljuk itt, hogy az alkalmazás bezárásakor
+        // le tudjuk állítani.
+        private Process? ffmpegProcess;
+
+        // Igaz lesz, amikor az alkalmazást bezárjuk.
+        // Így bezáráskor nem dobunk felesleges FFmpeg hibaüzenetet.
+        private bool applicationClosing = false;
+
         public Form1()
         {
             InitializeComponent();
@@ -56,6 +64,10 @@ namespace FPVVideoOverlay
 
         private async void btnStart_Click(object sender, EventArgs e)
         {
+            // ------------------------------------------------
+            // ELLENŐRZÉSEK
+            // ------------------------------------------------
+
             if (!File.Exists(txtMainVideo.Text))
             {
                 MessageBox.Show(
@@ -89,33 +101,53 @@ namespace FPVVideoOverlay
                 return;
             }
 
+            // ------------------------------------------------
+            // FELDOLGOZÁS INDÍTÁSA
+            // ------------------------------------------------
+
             btnStart.Enabled = false;
+
             progressBar.Value = 0;
-            lblStatus.Text = "Állapot: Előkészítés...";
+
+            lblStatus.Text =
+                "Állapot: Előkészítés...";
 
             try
             {
+                // Fő videó hosszának lekérése FFprobe-bal.
                 double duration =
                     await GetVideoDurationAsync(txtMainVideo.Text);
+
+                // ------------------------------------------------
+                // OVERLAY FILTER
+                // ------------------------------------------------
 
                 string overlayFilter;
 
                 if (chkCropBlackBars.Checked)
                 {
+                    // 1920x1080 overlayből a középső
+                    // 1080x1080 terület kivágása.
                     overlayFilter =
                         "crop=1080:1080:420:0,scale=500:500";
                 }
                 else
                 {
-                    // Normál overlay
-                    overlayFilter = "scale=500:500";
+                    overlayFilter =
+                        "scale=500:500";
                 }
 
+                // ------------------------------------------------
+                // FFMPEG ARGUMENTUMOK
+                // ------------------------------------------------
+
                 string arguments =
+                    "-y " +
+
                     $"-i \"{txtMainVideo.Text}\" " +
                     $"-i \"{txtOverlay.Text}\" " +
 
-                    $"-filter_complex " +
+                    "-filter_complex " +
                     $"\"[1:v]{overlayFilter}[map];" +
                     $"[0:v][map]overlay=W-w-30:H-h-30\" " +
 
@@ -129,67 +161,159 @@ namespace FPVVideoOverlay
 
                     $"\"{txtOutput.Text}\"";
 
-                ProcessStartInfo startInfo = new ProcessStartInfo
-                {
-                    FileName = "ffmpeg",
-                    Arguments = arguments,
+                ProcessStartInfo startInfo =
+                    new ProcessStartInfo
+                    {
+                        FileName = "ffmpeg",
+                        Arguments = arguments,
 
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
 
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                };
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    };
 
-                using Process process = new Process();
+                // ------------------------------------------------
+                // FFMPEG INDÍTÁSA
+                // ------------------------------------------------
 
-                process.StartInfo = startInfo;
+                ffmpegProcess = new Process();
+                ffmpegProcess.StartInfo = startInfo;
 
-                process.Start();
+                ffmpegProcess.Start();
 
-                lblStatus.Text = "Állapot: Feldolgozás... 0%";
+                lblStatus.Text =
+                    "Állapot: Feldolgozás... 0%";
 
+                // A stderr-t folyamatosan olvastatjuk,
+                // nehogy az FFmpeg buffer megteljen.
                 Task<string> errorTask =
-                    process.StandardError.ReadToEndAsync();
+                    ffmpegProcess.StandardError.ReadToEndAsync();
+
+                double renderSpeed = 0;
+                double currentSeconds = 0;
+
+                // ------------------------------------------------
+                // FFMPEG PROGRESS OLVASÁSA
+                // ------------------------------------------------
 
                 while (true)
                 {
                     string? line =
-                        await process.StandardOutput.ReadLineAsync();
+                        await ffmpegProcess.StandardOutput.ReadLineAsync();
 
                     if (line == null)
+                    {
                         break;
+                    }
+
+                    // ------------------------------------------------
+                    // FELDOLGOZOTT VIDEÓIDŐ
+                    // ------------------------------------------------
 
                     if (line.StartsWith("out_time_us="))
                     {
                         string value =
                             line.Substring("out_time_us=".Length);
 
-                        if (long.TryParse(value, out long microseconds))
+                        if (long.TryParse(
+                            value,
+                            out long microseconds))
                         {
-                            double currentSeconds =
+                            currentSeconds =
                                 microseconds / 1_000_000.0;
-
-                            int percent =
-                                (int)((currentSeconds / duration) * 100);
-
-                            percent =
-                                Math.Clamp(percent, 0, 100);
-
-                            progressBar.Value = percent;
-
-                            lblStatus.Text =
-                                $"Állapot: Feldolgozás... {percent}%";
                         }
+                    }
+
+                    // ------------------------------------------------
+                    // RENDER SEBESSÉG
+                    // pl.: speed=0.74x
+                    // ------------------------------------------------
+
+                    if (line.StartsWith("speed="))
+                    {
+                        string value =
+                            line.Substring("speed=".Length)
+                                .Trim()
+                                .TrimEnd('x');
+
+                        if (double.TryParse(
+                            value,
+                            NumberStyles.Any,
+                            CultureInfo.InvariantCulture,
+                            out double speed))
+                        {
+                            renderSpeed = speed;
+                        }
+                    }
+
+                    // ------------------------------------------------
+                    // PROGRESS + ETA
+                    // ------------------------------------------------
+
+                    if (currentSeconds > 0)
+                    {
+                        int percent =
+                            (int)((currentSeconds / duration) * 100);
+
+                        percent =
+                            Math.Clamp(percent, 0, 100);
+
+                        progressBar.Value = percent;
+
+                        string etaText = "--:--";
+
+                        if (renderSpeed > 0)
+                        {
+                            double remainingVideoSeconds =
+                                Math.Max(
+                                    0,
+                                    duration - currentSeconds);
+
+                            double etaSeconds =
+                                remainingVideoSeconds / renderSpeed;
+
+                            TimeSpan eta =
+                                TimeSpan.FromSeconds(etaSeconds);
+
+                            if (eta.TotalHours >= 1)
+                            {
+                                etaText =
+                                    $"{(int)eta.TotalHours}:" +
+                                    $"{eta.Minutes:00}:" +
+                                    $"{eta.Seconds:00}";
+                            }
+                            else
+                            {
+                                etaText =
+                                    $"{eta.Minutes:00}:" +
+                                    $"{eta.Seconds:00}";
+                            }
+                        }
+
+                        string speedText =
+                            renderSpeed > 0
+                                ? $"{renderSpeed:0.00}x"
+                                : "--";
+
+                        lblStatus.Text =
+                            $"Állapot: Feldolgozás... {percent}% | " +
+                            $"Sebesség: {speedText} | " +
+                            $"Hátra: ~{etaText}";
                     }
                 }
 
-                await process.WaitForExitAsync();
+                // ------------------------------------------------
+                // FFMPEG BEFEJEZŐDÉS
+                // ------------------------------------------------
+
+                await ffmpegProcess.WaitForExitAsync();
 
                 string ffmpegOutput =
                     await errorTask;
 
-                if (process.ExitCode == 0)
+                if (ffmpegProcess.ExitCode == 0)
                 {
                     progressBar.Value = 100;
 
@@ -202,7 +326,7 @@ namespace FPVVideoOverlay
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Information);
                 }
-                else
+                else if (!applicationClosing)
                 {
                     lblStatus.Text =
                         "Állapot: Hiba!";
@@ -217,20 +341,32 @@ namespace FPVVideoOverlay
             }
             catch (Exception ex)
             {
-                lblStatus.Text =
-                    "Állapot: Hiba!";
+                // Ha éppen bezárjuk az alkalmazást,
+                // ne dobáljon hibaablakokat.
+                if (!applicationClosing)
+                {
+                    lblStatus.Text =
+                        "Állapot: Hiba!";
 
-                MessageBox.Show(
-                    ex.Message,
-                    "Hiba",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                    MessageBox.Show(
+                        ex.Message,
+                        "Hiba",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
             }
             finally
             {
                 btnStart.Enabled = true;
+
+                ffmpegProcess?.Dispose();
+                ffmpegProcess = null;
             }
         }
+
+        // ------------------------------------------------
+        // VIDEÓ HOSSZÁNAK LEKÉRÉSE FFPROBE-BAL
+        // ------------------------------------------------
 
         private async Task<double> GetVideoDurationAsync(
             string videoPath)
@@ -248,34 +384,35 @@ namespace FPVVideoOverlay
 
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
+
                     UseShellExecute = false,
                     CreateNoWindow = true
                 };
 
-            using Process process = new Process();
+            // FONTOS:
+            // Az FFprobe külön process.
+            // Nem használjuk hozzá az ffmpegProcess változót.
+            using Process probeProcess =
+                new Process();
 
-            process.StartInfo = startInfo;
+            probeProcess.StartInfo =
+                startInfo;
 
-            process.Start();
-
-            lblStatus.Text = "Állapot: Feldolgozás... 0%";
-            lblStatus.Refresh();
-
-            Task<string> errorTask =
-                process.StandardError.ReadToEndAsync();
+            probeProcess.Start();
 
             string output =
-                await process.StandardOutput.ReadToEndAsync();
+                await probeProcess.StandardOutput.ReadToEndAsync();
 
             string error =
-                await process.StandardError.ReadToEndAsync();
+                await probeProcess.StandardError.ReadToEndAsync();
 
-            await process.WaitForExitAsync();
+            await probeProcess.WaitForExitAsync();
 
-            if (process.ExitCode != 0)
+            if (probeProcess.ExitCode != 0)
             {
                 throw new Exception(
-                    "Az FFprobe hibával állt le:\n\n" + error);
+                    "Az FFprobe hibával állt le:\n\n" +
+                    error);
             }
 
             if (double.TryParse(
@@ -289,6 +426,33 @@ namespace FPVVideoOverlay
 
             throw new Exception(
                 "Nem sikerült meghatározni a videó hosszát.");
+        }
+
+        // ------------------------------------------------
+        // PROGRAM BEZÁRÁSA
+        // ------------------------------------------------
+
+        private void Form1_FormClosing(
+            object sender,
+            FormClosingEventArgs e)
+        {
+            applicationClosing = true;
+
+            // Ha FFmpeg még fut, állítsuk le.
+            if (ffmpegProcess != null &&
+                !ffmpegProcess.HasExited)
+            {
+                try
+                {
+                    ffmpegProcess.Kill(
+                        entireProcessTree: true);
+                }
+                catch
+                {
+                    // Bezáráskor nincs értelme újabb
+                    // hibaüzenetet feldobni.
+                }
+            }
         }
     }
 }
